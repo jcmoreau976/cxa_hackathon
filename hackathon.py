@@ -1,4 +1,4 @@
-import socket, sys, threading, os
+import socket, sys, threading, os, re
 from manuf import manuf
 
 def TCP_connect(ip, port_number, delay, output):
@@ -60,18 +60,25 @@ def validate_ip(s):
             return False
     return True
 
+# make sure that output of arp command matches a format that we expect
+def validwindowsarp(test):
+    pattern = '(\d{1,3}\.){3}\d{1,3}\s*?([a-f0-9]{2}-){5}[a-f0-9]{2}'
+    if re.search(pattern, test) is not None:
+        return True
+    return False
 
 #execute arp command on command line to collect list of devices on local network
 def parsewindows():
     arp_output = os.popen('arp -a', mode='r').read()
-    arp_output = arp_output.split('\n')[3:-1]
+    arp_output = arp_output.split('\n')
     devices = []
 
     #parse arp output
     for line in arp_output:
-        ip_address = line.split()[0]
-        mac_address = line.split()[1]
-        devices.append({'ip': ip_address, 'mac': mac_address})
+        if validwindowsarp(line):
+            ip_address = line.split()[0]
+            mac_address = line.split()[1]
+            devices.append({'ip': ip_address, 'mac': mac_address})
 
     return devices
 
@@ -86,3 +93,6 @@ def parsemac():
         mac_address = line.split()[3]
         devices.append({'ip': ip_address, 'mac': mac_address})
     return devices
+
+
+
