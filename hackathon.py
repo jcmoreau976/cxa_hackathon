@@ -47,6 +47,19 @@ def get_vendor(mac):
     else:
         return man
 
+def validate_mask(s):
+    mask_vals = [0, 128, 224, 240, 248, 252, 254, 255]
+    a = s.split('.')
+    if len(a) != 4:
+        return False
+    for x in a:
+        if not x.isdigit():
+            return False
+        i = int(x)
+        if i not in mask_vals:
+            return False
+    return True
+
 
 def validate_ip(s):
     a = s.split('.')

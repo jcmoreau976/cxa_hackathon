@@ -32,6 +32,15 @@ for o, a in opts:
     else:
         assert False, usage
 
+if not hackathon.validate_ip(subnet):
+    print('Invalid subnet given. Subnet must be given as three octet string, ex: \'192.168.1.0\'')
+    sys.exit('Bad subnet input')
+
+if not hackathon.validate_mask(mask):
+    print('Invalid subnet mask given.')
+    sys.exit('Bad mask input')
+
+
 if sys.platform == 'win32':
     devices = hackathon.parsewindows()
 else:
