@@ -49,14 +49,36 @@ if sys.platform == 'win32':
 else:
     devices = hackathon.parsemac()
 
+devices_in_network = 0
+
+for device in devices:
+    addr = ipaddress.ip_address(device['ip'])
+    if addr in ipaddress.ip_network(network, strict=False):
+        devices_in_network = devices_in_network + 1
+
+hackathon.printProgressBar(0, devices_in_network, prefix='Progress: ',suffix='Complete',length=50)
+i = 0
+for device in devices:
+    device['vendor'] = ''
+    device['ports'] = []
+    i = i + 1
+    addr = ipaddress.ip_address(device['ip'])
+    #check whether device is in subnet we're looking at
+    if addr in ipaddress.ip_network(network, strict=False):
+        #print(addr,'    ', hackathon.get_vendor(device['mac']))
+        device['vendor'] = hackathon.get_vendor(device['mac'])
+        device['ports'] = hackathon.scan_ports(device['ip'], delay=timeout, maxport=ports)
+    hackathon.printProgressBar(i, len(devices), prefix='Progress: ', suffix='Complete', length=50)
+
 print('\n------------------------')
 print('Device IP   Manufacturer')
 print('------------------------\n')
 
 for device in devices:
     addr = ipaddress.ip_address(device['ip'])
-
-    #check whether device is in subnet we're looking at
     if addr in ipaddress.ip_network(network, strict=False):
-        print(addr,'    ', hackathon.get_vendor(device['mac']))
-        hackathon.scan_ports(device['ip'], delay=timeout, maxport=ports)
+        print(device['ip'], '   ',device['vendor'])
+        for port in device['ports']:
+            print('     Port {}: Open'.format(port))
+
+print('\n')

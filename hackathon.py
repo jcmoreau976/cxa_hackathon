@@ -17,6 +17,7 @@ def scan_ports(host_ip, delay, maxport):
 
     maxport = maxport + 1   # due to behavior of range function, we want maxport to be included
     threads = []        # To run TCP_connect concurrently
+    openports = []
     output = {}         # For printing purposes
 
     # Spawning threads to scan ports
@@ -35,7 +36,9 @@ def scan_ports(host_ip, delay, maxport):
     # Printing listening ports from small to large
     for i in range(maxport):
         if output[i] == 'Open':
-            print('    Port ' + str(i) + ': ' + output[i])
+            openports.append(i)
+            #print('    Port ' + str(i) + ': ' + output[i])
+    return openports
 
 
 # determine vendor based on mac address
@@ -127,3 +130,23 @@ def pingsweep(network):
         os.popen('ping ' + str(ip), mode='r')
     #time.sleep(0.5)
 
+# Print iterations progress
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
+    # Print New Line on Complete
+    if iteration == total:
+        print()
