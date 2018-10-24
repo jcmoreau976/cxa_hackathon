@@ -40,6 +40,9 @@ if not hackathon.validate_mask(mask):
     print('Invalid subnet mask given.')
     sys.exit('Bad mask input')
 
+local_ip, local_mask = hackathon.findipsub()
+
+hackathon.pingsweep(local_ip + '/' + local_mask)
 
 if sys.platform == 'win32':
     devices = hackathon.parsewindows()
@@ -55,5 +58,5 @@ for device in devices:
 
     #check whether device is in subnet we're looking at
     if addr in ipaddress.ip_network(network, strict=False):
-        print(addr, hackathon.get_vendor(device['mac']))
+        print(addr,'    ', hackathon.get_vendor(device['mac']))
         hackathon.scan_ports(device['ip'], delay=timeout, maxport=ports)

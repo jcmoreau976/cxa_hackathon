@@ -1,4 +1,4 @@
-import socket, sys, threading, os, re
+import socket, sys, threading, os, re, ipaddress, time
 from manuf import manuf
 
 def TCP_connect(ip, port_number, delay, output):
@@ -108,4 +108,22 @@ def parsemac():
     return devices
 
 
+def findipsub():
+    config = os.popen('ipconfig', mode='r').read()
+    config = config.split('\n')
+    ip = '0.0.0.0'
+    mask = '0.0.0.0'
+    for l in config:
+        line = l.split()
+        if 'IPv4 Address' in l:
+            ip = line[-1]
+        if 'Subnet Mask' in l:
+            mask = line[-1]
+    return ip, mask
+
+
+def pingsweep(network):
+    for ip in ipaddress.ip_network(network, strict=False):
+        os.popen('ping ' + str(ip), mode='r')
+    #time.sleep(0.5)
 
