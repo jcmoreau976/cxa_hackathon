@@ -76,6 +76,9 @@ def parsewindows():
     return devices
 
 def parsemac():
+    arp_output = os.popen('arp -a', mode='r').read()
+    arp_output = arp_output.split('\n')[3:-1]
+    devices = []
     for line in arp_output:
         dhcp_bs = line.split()[0]
         ip_address = line.split()[1].strip('(').strip(')')
