@@ -32,8 +32,10 @@ for o, a in opts:
     else:
         assert False, usage
 
-
-devices = hackathon.parsewindows()
+if sys.platform == 'win32':
+    devices = hackathon.parsewindows()
+else:
+    devices = hackathon.parsemac()
 
 print('\n------------------------')
 print('Device IP   Manufacturer')
