@@ -74,3 +74,12 @@ def parsewindows():
         devices.append({'ip': ip_address, 'mac': mac_address})
 
     return devices
+
+def parsemac():
+    for line in arp_output:
+        dhcp_bs = line.split()[0]
+        ip_address = line.split()[1].strip('(').strip(')')
+        at_bs = line.split()[2]
+        mac_address = line.split()[3]
+        devices.append({'ip': ip_address, 'mac': mac_address})
+    return devices
