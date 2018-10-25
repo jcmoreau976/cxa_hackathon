@@ -1,4 +1,4 @@
-import socket, sys, threading, os, re, ipaddress, time
+import socket, sys, threading, os, re, ipaddress
 from manuf import manuf
 
 def TCP_connect(ip, port_number, delay, output):
@@ -15,26 +15,26 @@ def TCP_connect(ip, port_number, delay, output):
 # check to see which ports are open
 def scan_ports(host_ip, delay, maxport):
 
-    maxport = maxport + 1   # due to behavior of range function, we want maxport to be included
+    maxport[-1] = maxport[-1] + 1   # due to behavior of range function, we want maxport to be included
     threads = []        # To run TCP_connect concurrently
     openports = []
     output = {}         # For printing purposes
 
     # Spawning threads to scan ports
-    for i in range(maxport):
+    for i in range(maxport[0], maxport[-1]):
         t = threading.Thread(target=TCP_connect, args=(host_ip, i, delay, output))
         threads.append(t)
 
     # Starting threads
-    for i in range(maxport):
+    for i in range(maxport[0], maxport[-1]):
         threads[i].start()
 
     # Locking the script until all threads complete
-    for i in range(maxport):
+    for i in range(maxport[0], maxport[-1]):
         threads[i].join()
 
     # Printing listening ports from small to large
-    for i in range(maxport):
+    for i in range(maxport[0],maxport[-1]):
         if output[i] == 'Open':
             openports.append(i)
             #print('    Port ' + str(i) + ': ' + output[i])
