@@ -111,7 +111,7 @@ def parsemac():
     return devices
 
 
-def findipsub():
+def findipsubwindows():
     print('Determining LAN info...')
     config = os.popen('ipconfig', mode='r').read()
     config = config.split('\n')
@@ -125,11 +125,28 @@ def findipsub():
             mask = line[-1]
     return ip, mask
 
+def findipsubmac():
+    print('Determining LAN info...')
+    config = os.popen('ifconfig', mode='r').read()
+    config = config.split('\n')
+    ip = '0.0.0.0'
+    mask = '0.0.0.0'
+    found = False
+    for l in config:
+        line = l.split()
+        if 'en0:' in l:
+            found = True
+        if found and 'inet ' in l:
+            ip = line[1]
+            mask = line[3]
+            mask = str(ipaddress.ip_address(int(mask, 16)))
+    return ip, mask
 
-def pingsweep(network):
+
+def pingsweep(network, m):
     print('Updating local ARP table...')
     for ip in ipaddress.ip_network(network, strict=False):
-        os.popen('ping -n 2' + str(ip), mode='r')
+        os.popen('ping ' + str(ip) + ' ' +m + ' 2', mode='r')
         #print('Pinging ', ip)
     #time.sleep(0.5)
 
