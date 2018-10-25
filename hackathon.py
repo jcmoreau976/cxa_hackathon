@@ -129,7 +129,7 @@ def findipsub():
 def pingsweep(network):
     print('Updating local ARP table...')
     for ip in ipaddress.ip_network(network, strict=False):
-        os.popen('ping ' + str(ip), mode='r')
+        os.popen('ping -n 2' + str(ip), mode='r')
         #print('Pinging ', ip)
     #time.sleep(0.5)
 
@@ -152,4 +152,4 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
     # Print New Line on Complete
     if iteration == total:
-        print()
+        '''print()'''

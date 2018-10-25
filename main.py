@@ -19,21 +19,23 @@ timeout = args.timeout
 ports = args.ports
 skip_scan = ports[0] == ports[1]
 
-print(skip_scan)
-
-local_ip, local_mask = hackathon.findipsub()
 
 if sys.platform == 'win32':
     if not skip_arp:
+        local_ip, local_mask = hackathon.findipsub()
         hackathon.pingsweep(local_ip + '/' + local_mask)
     devices = hackathon.parsewindows()
 else:
-    if not skip_arp:
-        hackathon.pingsweep('0.0.0.0/0')
     devices = hackathon.parsemac()
     skip_scan = True
 
 devices_in_network = 0
+
+# count available addresses
+available_addresses = 0
+for ip in ipaddress.ip_network(network):
+    available_addresses = available_addresses + 1
+available_addresses = available_addresses - 2 #broadcast and subnet
 
 for device in devices:
     addr = ipaddress.ip_address(device['ip'])
@@ -94,6 +96,14 @@ vendor_table.field_names = ['Vendor', 'Devices']
 for k, v in vendors.items():
     vendor_table.add_row([k, v])
 
+util_table = PrettyTable()
+util = (devices_in_network/available_addresses) * 100
+util = round(util, 2)
+util_table.field_names = ['Network Utilization']
+util_table.add_row(['{} out of {} addresses in use ({}%)'.format(devices_in_network,available_addresses,util)])
+
+print('\n')
+print(util_table)
 print()
 print(device_table)
 print()
