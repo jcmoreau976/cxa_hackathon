@@ -112,6 +112,7 @@ def parsemac():
 
 
 def findipsub():
+    print('Determining LAN info...')
     config = os.popen('ipconfig', mode='r').read()
     config = config.split('\n')
     ip = '0.0.0.0'
@@ -126,8 +127,10 @@ def findipsub():
 
 
 def pingsweep(network):
+    print('Updating local ARP table...')
     for ip in ipaddress.ip_network(network, strict=False):
         os.popen('ping ' + str(ip), mode='r')
+        #print('Pinging ', ip)
     #time.sleep(0.5)
 
 # Print iterations progress

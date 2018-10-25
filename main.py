@@ -3,6 +3,7 @@ import sys
 import ipaddress
 import hackathon
 import getopt
+from prettytable import PrettyTable
 
 usage = '\nEx: python main.py [-c 192.168.1.0/24] [-s subnet -m netmask] [-p ports] \n'
 network = '0.0.0.0/0'   # search all subnets by default
@@ -10,6 +11,7 @@ subnet = '0.0.0.0'
 mask = '0.0.0.0'
 ports = 1024            # scan 1024 ports by default
 timeout = 0.5           # 0.5 second port scan timeout default
+vendors = {}
 
 try:
     opts, r = getopt.getopt(sys.argv[1:], 't:c:s:m:p:')
@@ -56,29 +58,51 @@ for device in devices:
     if addr in ipaddress.ip_network(network, strict=False):
         devices_in_network = devices_in_network + 1
 
-hackathon.printProgressBar(0, devices_in_network, prefix='Progress: ',suffix='Complete',length=50)
 i = 0
+print('Scanning ports...')
+hackathon.printProgressBar(0, devices_in_network, prefix='Progress: ',suffix='Complete',length=50)
+
 for device in devices:
     device['vendor'] = ''
     device['ports'] = []
-    i = i + 1
     addr = ipaddress.ip_address(device['ip'])
     #check whether device is in subnet we're looking at
     if addr in ipaddress.ip_network(network, strict=False):
+        i = i + 1
         #print(addr,'    ', hackathon.get_vendor(device['mac']))
         device['vendor'] = hackathon.get_vendor(device['mac'])
         device['ports'] = hackathon.scan_ports(device['ip'], delay=timeout, maxport=ports)
-    hackathon.printProgressBar(i, len(devices), prefix='Progress: ', suffix='Complete', length=50)
+        if device['vendor'] not in vendors:
+            vendors[device['vendor']] = 1
+        else:
+            vendors[device['vendor']] = vendors[device['vendor']] + 1
+    hackathon.printProgressBar(i, len(devices), prefix='{} of {} devices scanned'.format(i, devices_in_network),
+                               suffix='Complete', length=50)
+vendors['Unknown'] = vendors['']
+del vendors['']
 
-print('\n------------------------')
-print('Device IP   Manufacturer')
-print('------------------------\n')
+device_table = PrettyTable()
+device_table.field_names = ['IP', 'Open Ports', 'Manufacturer']
+device_table.title = 'Devices'
 
 for device in devices:
     addr = ipaddress.ip_address(device['ip'])
     if addr in ipaddress.ip_network(network, strict=False):
-        print(device['ip'], '   ',device['vendor'])
-        for port in device['ports']:
-            print('     Port {}: Open'.format(port))
+        try:
+            firstport = device['ports'][0]
+        except IndexError:
+            firstport = ''
+        device_table.add_row([addr, firstport, device['vendor']])
+        for port in device['ports'][1:]:
+            device_table.add_row(['', port, ''])
 
-print('\n')
+vendor_table = PrettyTable()
+vendor_table.title = 'Vendors'
+vendor_table.field_names = vendors.keys()
+vendor_table.add_row([v for v in vendors.values()])
+
+print()
+print(device_table)
+print()
+print(vendor_table)
+
