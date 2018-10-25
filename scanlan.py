@@ -20,17 +20,17 @@ ports = args.ports
 skip_scan = ports[0] == ports[1]
 
 if sys.platform == 'win32':
+    local_ip, local_mask = hackathon.findipsubwindows()
+    if network == '0.0.0.0/0':
+        network = local_ip + '/' + local_mask
     if not skip_arp:
-        local_ip, local_mask = hackathon.findipsubwindows()
-        if network == '0.0.0.0/0':
-            network = local_ip + '/' + local_mask
         hackathon.pingsweep(local_ip + '/' + local_mask, '-n')
     devices = hackathon.parsewindows()
 else:
+    local_ip, local_mask = hackathon.findipsubmac()
+    if network == '0.0.0.0/0':
+        network = local_ip + '/' + local_mask
     if not skip_arp:
-        local_ip, local_mask = hackathon.findipsubmac()
-        if network == '0.0.0.0/0':
-            network = local_ip + '/' + local_mask
         hackathon.pingsweep(local_ip + '/' + local_mask, '-c')
     devices = hackathon.parsemac()
     skip_scan = True
