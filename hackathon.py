@@ -170,3 +170,13 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     # Print New Line on Complete
     if iteration == total:
         '''print()'''
+
+
+def welcome():
+    welcome = """   _____ _________    _   ____    ___    _   __\n
+  / ___// ____/   |  / | / / /   /   |  / | / /\n
+  \__ \/ /   / /| | /  |/ / /   / /| | /  |/ / \n
+ ___/ / /___/ ___ |/ /|  / /___/ ___ |/ /|  /  \n
+/____/\____/_/  |_/_/ |_/_____/_/  |_/_/ |_/   \n"""
+    print(welcome)
+    print('\nCollect information about devices connected to your LAN!\n')
