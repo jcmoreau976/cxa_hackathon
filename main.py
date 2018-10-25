@@ -21,10 +21,13 @@ skip_scan = ports[0] == ports[1]
 
 if sys.platform == 'win32':
     if not skip_arp:
-        local_ip, local_mask = hackathon.findipsub()
-        hackathon.pingsweep(local_ip + '/' + local_mask)
+        local_ip, local_mask = hackathon.findipsubwindows()
+        hackathon.pingsweep(local_ip + '/' + local_mask, '-n')
     devices = hackathon.parsewindows()
 else:
+    if not skip_arp:
+        local_ip, local_mask = hackathon.findipsubmac()
+        hackathon.pingsweep(local_ip + '/' + local_mask, '-c')
     devices = hackathon.parsemac()
     skip_scan = True
 
@@ -56,7 +59,10 @@ for device in devices:
     #check whether device is in subnet we're looking at
     if addr in ipaddress.ip_network(network, strict=False):
         i = i + 1
-        device['vendor'] = hackathon.get_vendor(device['mac'])
+        try:
+            device['vendor'] = hackathon.get_vendor(device['mac'])
+        except ValueError:
+            device['vendor'] = ''
         if not skip_scan:
             device['ports'] = hackathon.scan_ports(device['ip'], delay=timeout, maxport=ports)
         if device['vendor'] not in vendors:
