@@ -46,7 +46,6 @@ devices_in_network = 0
 available_addresses = 0
 for ip in ipaddress.ip_network(network, strict=False):
     available_addresses = available_addresses + 1
-available_addresses = available_addresses - 2 #broadcast and subnet
 
 for device in devices:
     addr = ipaddress.ip_address(device['ip'])
