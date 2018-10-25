@@ -2,6 +2,7 @@ import sys
 import ipaddress
 import hackathon
 import argparse
+import json
 from prettytable import PrettyTable
 
 vendors = {'':0}
@@ -12,12 +13,14 @@ parser.add_argument('--network', '-c', help='Subnet in CIDR notation', default='
 parser.add_argument('-n', dest='skip', action='store_true', help='Skip ARP table update', default=False)
 parser.add_argument('-p', '--ports', help='Range of ports to scan for each device', default=[0,0], type=int, nargs=2)
 parser.add_argument('-t', '--timeout', help='Time to wait for each port connection', default=0.5, type=float)
+parser.add_argument('-f', '--file', help='Name of file to save output data', default=None, type=str)
 args = parser.parse_args()
 network = args.network
 skip_arp = args.skip
 timeout = args.timeout
 ports = args.ports
 skip_scan = ports[0] == ports[1]
+fname = args.file
 
 if sys.platform == 'win32':
     local_ip, local_mask = hackathon.findipsubwindows()
@@ -55,6 +58,7 @@ if devices_in_network == 0:
 print('Scanning ports...')
 i = 0   # iterator for progress bar
 hackathon.printProgressBar(0, devices_in_network, prefix='Progress: ',suffix='Complete',length=50)
+save_devices = {}
 
 for device in devices:
     device['vendor'] = ''
@@ -73,6 +77,7 @@ for device in devices:
             vendors[device['vendor']] = 1
         else:
             vendors[device['vendor']] = vendors[device['vendor']] + 1
+        save_devices.update({i: device})
     hackathon.printProgressBar(i, devices_in_network,
                                prefix='Progress: {} of {} devices scanned'.format(i, devices_in_network),
                                suffix='Complete', length=50)
@@ -80,6 +85,14 @@ for device in devices:
 ##################################
 # Format output into nice tables #
 ##################################
+
+# save output to file
+if fname is not None:
+    save_devices = {'Devices': save_devices}
+    print('\n\nSaving devices to output file {}'.format(fname))
+    with open(fname, 'w') as file:
+        file.write(json.dumps(save_devices))
+
 
 vendors['Unknown'] = vendors['']
 del vendors['']
